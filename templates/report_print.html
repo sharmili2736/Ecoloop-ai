@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoLoop AI report — {{ report.period.label }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    body { background: #fff; }
+    .sheet { max-width: 880px; margin: 0 auto; padding: 34px 26px 60px; }
+    .sheet h1 { font-size: 1.8rem; margin-bottom: 2px; }
+    .sheet table.data { margin-top: 8px; }
+    .report-head { border-bottom: 3px solid var(--leaf-700); padding-bottom: 14px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+<div class="sheet">
+  <div class="no-print" style="display:flex;gap:10px;justify-content:flex-end;margin-bottom:18px">
+    <button class="btn btn-secondary" onclick="window.close()">Close</button>
+    <button class="btn btn-primary" onclick="window.print()">Print this report</button>
+  </div>
+
+  <header class="report-head">
+    <h1>🌱 EcoLoop AI — Sustainability Report</h1>
+    <p class="muted" style="margin:0">
+      {{ report.period.label }} · {{ report.user.name }} · {{ report.user.organization }}<br>
+      {{ report.user.user_type }} · {{ report.user.email }} · generated {{ report.generated_at }}
+    </p>
+  </header>
+
+  <section class="report-section">
+    <h3>Waste and recycling</h3>
+    <div class="kv">
+      <div><div class="k">Waste generated</div><div class="v">{{ report.waste.generated }} kg</div></div>
+      <div><div class="k">Waste recycled</div><div class="v">{{ report.waste.recycled }} kg</div></div>
+      <div><div class="k">Plastic diverted</div><div class="v">{{ report.waste.plastic_recycled }} kg</div></div>
+      <div><div class="k">Recycling rate</div><div class="v">{{ report.waste.recycling_rate }}%</div></div>
+      <div><div class="k">Landfill avoided</div><div class="v">{{ report.waste.landfill_avoided }} kg</div></div>
+    </div>
+
+    {% if report.waste.categories %}
+      <table class="data">
+        <thead><tr><th>Waste category</th><th>Quantity (kg)</th></tr></thead>
+        <tbody>
+          {% for row in report.waste.categories %}
+            <tr><td>{{ row.category }}</td><td>{{ row.total }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No waste records in this period.</p>
+    {% endif %}
+  </section>
+
+  <section class="report-section">
+    <h3>Carbon footprint (estimated)</h3>
+    <div class="kv">
+      <div><div class="k">Monthly estimate</div><div class="v">{{ report.carbon.monthly_estimate }} kg CO₂e</div></div>
+      <div><div class="k">Electricity</div><div class="v">{{ report.carbon.electricity }} kg</div></div>
+      <div><div class="k">Transport</div><div class="v">{{ report.carbon.transport }} kg</div></div>
+      <div><div class="k">Food</div><div class="v">{{ report.carbon.food }} kg</div></div>
+      <div><div class="k">Waste</div><div class="v">{{ report.carbon.waste }} kg</div></div>
+      <div><div class="k">CO₂e avoided</div><div class="v">{{ report.carbon.co2_saved }} kg</div></div>
+    </div>
+    <p class="small muted">{{ report.basis }}</p>
+  </section>
+
+  <section class="report-section">
+    <h3>Sustainability score: {{ report.score.score }} / 100</h3>
+    <table class="data">
+      <thead><tr><th>Pillar</th><th>Score</th></tr></thead>
+      <tbody>
+        {% for name, value in report.score.pillars.items() %}
+          <tr><td>{{ name }}</td><td>{{ value }} / 100</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="report-section">
+    <h3>Eco points and challenges</h3>
+    <div class="kv">
+      <div><div class="k">Eco points</div><div class="v">{{ '{:,}'.format(report.user.eco_points) }}</div></div>
+      <div><div class="k">Challenges joined</div><div class="v">{{ report.challenges.joined }}</div></div>
+      <div><div class="k">Completed</div><div class="v">{{ report.challenges.completed|length }}</div></div>
+      <div><div class="k">Challenge points</div><div class="v">{{ report.challenges.points_from_challenges }}</div></div>
+    </div>
+    {% if report.challenges.completed %}
+      <ul>
+        {% for challenge in report.challenges.completed %}
+          <li>{{ challenge.title }} — {{ challenge.points }} points</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+
+  <section class="report-section">
+    <h3>Zero-waste goals</h3>
+    {% if report.goals %}
+      <table class="data">
+        <thead><tr><th>Goal</th><th>Progress</th><th>Status</th><th>Deadline</th></tr></thead>
+        <tbody>
+          {% for goal in report.goals %}
+            <tr>
+              <td>{{ goal.title }}</td>
+              <td>{{ goal.current }} / {{ goal.target }} {{ goal.unit }}</td>
+              <td>{{ goal.status }}</td>
+              <td>{{ goal.deadline or '—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No goals tracked.</p>
+    {% endif %}
+  </section>
+
+  <section class="report-section">
+    <h3>Biodiversity observations ({{ report.biodiversity.count }})</h3>
+    {% if report.biodiversity.records %}
+      <table class="data">
+        <thead><tr><th>Species</th><th>Category</th><th>Location</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for record in report.biodiversity.records %}
+            <tr>
+              <td>{{ record.species }}</td>
+              <td>{{ record.category }}</td>
+              <td>{{ record.location or '—' }}</td>
+              <td>{{ record.observation_date }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No observations recorded in this period.</p>
+    {% endif %}
+  </section>
+
+  <footer class="report-section">
+    <p class="small muted">Generated by EcoLoop AI. Carbon values are estimates produced from
+      the emission factors configured in <code>config.py</code>.</p>
+  </footer>
+</div>
+</body>
+</html>

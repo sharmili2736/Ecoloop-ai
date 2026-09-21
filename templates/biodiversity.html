@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Biodiversity Monitor — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Biodiversity monitor</h1>
+    <p>Record the birds, plants, trees and insects around you. Over time these records
+      become a baseline for the place you live or study in.</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-primary" data-open-modal="bioModal">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i> Add observation
+    </button>
+  </div>
+</div>
+
+<section class="grid grid-4" style="margin-bottom:18px">
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-paw" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Species observed</div>
+      <div class="stat-value"><span id="sumSpecies" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Plants and trees</div>
+      <div class="stat-value"><span id="sumPlants" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon blue"><i class="fa-solid fa-dove" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Birds recorded</div>
+      <div class="stat-value"><span id="sumBirds" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon amber"><i class="fa-regular fa-calendar" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Observations this month</div>
+      <div class="stat-value"><span id="sumMonth" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+</section>
+
+<section class="grid grid-aside" style="margin-bottom:18px">
+  <article class="card">
+    <div class="card-head">
+      <h3>Observation map</h3>
+      <span class="muted small">Stylised layout — no GPS or external map service</span>
+    </div>
+    <div class="sketch-map" id="sketchMap">
+      <div class="map-legend" id="mapLegend"></div>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h3>By category</h3></div>
+    <div class="chart-box short"><canvas id="categoryChart" aria-label="Observations by category"></canvas></div>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h3>Observations</h3>
+    <span class="muted small" id="obsCount">0 records</span>
+  </div>
+
+  <div class="filters">
+    <div class="field">
+      <label for="filterSpecies">Search species</label>
+      <input type="search" id="filterSpecies" placeholder="e.g. peafowl">
+    </div>
+    <div class="field">
+      <label for="filterCategory">Category</label>
+      <select id="filterCategory">
+        <option value="">All categories</option>
+        {% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="filterFrom">From date</label>
+      <input type="date" id="filterFrom">
+    </div>
+    <div class="field">
+      <label for="filterTo">To date</label>
+      <input type="date" id="filterTo">
+    </div>
+    <button class="btn btn-secondary btn-sm" id="clearFilters">Clear</button>
+  </div>
+
+  <div id="cardsArea"><div class="skeleton skeleton-card"></div></div>
+</section>
+
+<!-- add observation modal -->
+<div class="modal-backdrop" id="bioModal" role="dialog" aria-modal="true"
+     aria-labelledby="bioModalTitle" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="bioModalTitle">Add an observation</h3>
+        <p>Each observation is worth 15 eco points.</p>
+      </div>
+      <button class="icon-btn" data-close-modal="bioModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <form id="bioForm" novalidate enctype="multipart/form-data">
+      <div class="field-row">
+        <div class="field">
+          <label for="species">Species name</label>
+          <input type="text" id="species" required placeholder="Indian Peafowl">
+          <div class="field-error" id="speciesError" role="alert"></div>
+        </div>
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category">
+            {% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="location">Location name</label>
+          <input type="text" id="location" placeholder="Campus garden">
+        </div>
+        <div class="field">
+          <label for="observationDate">Observation date</label>
+          <input type="date" id="observationDate">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" placeholder="Seen near the garden pond at sunrise."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="bioImage">Photo (optional)</label>
+        <input type="file" id="bioImage" accept="image/*">
+        <div class="field-hint">PNG, JPG, GIF or WEBP · up to 5 MB</div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" data-close-modal="bioModal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveBio">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save observation
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/biodiversity.js') }}"></script>
+{% endblock %}

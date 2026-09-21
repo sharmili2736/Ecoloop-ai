@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Waste Analyzer — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Waste Analyzer</h1>
+    <p>Upload a photo or pick a category, add the quantity, and see what the material is
+      worth if it is diverted from landfill.</p>
+  </div>
+  <div class="page-actions">
+    <span class="chip"><i class="fa-solid fa-database"></i> <span id="wasteCount">0</span> records</span>
+  </div>
+</div>
+
+{% if not model_available %}
+<div class="demo-flag" style="margin-bottom:18px">
+  <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+  <div><strong>Demo classifier active.</strong> This build labels material from the category
+    you select and keywords in the file name. It does not run a trained vision model.
+    Swap in a real one at <code>services/ai_service.py</code> → <code>_predict_from_model()</code>.</div>
+</div>
+{% endif %}
+
+<section class="analyzer-grid" style="margin-bottom:18px">
+  <!-- input -->
+  <article class="card">
+    <div class="card-head"><h3>Analyse an item</h3></div>
+
+    <form id="analyzeForm" novalidate>
+      <div class="dropzone" id="dropzone" tabindex="0" role="button"
+           aria-label="Upload a waste image">
+        <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+        <p><strong>Drop an image here</strong> or click to browse</p>
+        <p class="small">PNG, JPG, GIF or WEBP · up to 5 MB</p>
+        <input type="file" id="imageInput" accept="image/*" class="sr-only">
+      </div>
+      <img id="imagePreview" class="preview-img" alt="Preview of the uploaded waste image" hidden>
+
+      <div class="field-row" style="margin-top:16px">
+        <div class="field">
+          <label for="categorySelect">Waste category</label>
+          <select id="categorySelect" required>
+            <option value="">Select a category</option>
+            {% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="unitSelect">Unit</label>
+          <select id="unitSelect">
+            {% for unit in units %}<option value="{{ unit }}">{{ unit }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="quantityInput">Quantity</label>
+        <input type="number" id="quantityInput" min="0.01" step="0.01" value="1" required>
+        <div class="field-error" id="quantityError" role="alert"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="submit" class="btn btn-primary" id="analyzeBtn">
+          <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Analyse
+        </button>
+        <button type="button" class="btn btn-secondary" id="resetBtn">Clear</button>
+      </div>
+    </form>
+  </article>
+
+  <!-- result -->
+  <article class="card" id="resultCard">
+    <div class="card-head"><h3>Analysis result</h3></div>
+    <div id="resultBody">
+      <div class="empty">
+        <div class="emoji"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+        <h3>Nothing analysed yet</h3>
+        <p>Add an image or choose a category, then press Analyse to see the material,
+          the recommended action and the estimated impact.</p>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- records -->
+<section class="card">
+  <div class="card-head">
+    <h3>Waste records</h3>
+    <span class="muted small">Newest first</span>
+  </div>
+
+  <div class="filters">
+    <div class="field">
+      <label for="filterSearch">Search material</label>
+      <input type="search" id="filterSearch" placeholder="e.g. bottle">
+    </div>
+    <div class="field">
+      <label for="filterCategory">Category</label>
+      <select id="filterCategory">
+        <option value="">All categories</option>
+        {% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="filterFrom">From date</label>
+      <input type="date" id="filterFrom">
+    </div>
+    <div class="field">
+      <label for="filterTo">To date</label>
+      <input type="date" id="filterTo">
+    </div>
+    <button class="btn btn-secondary btn-sm" id="clearFilters">Clear filters</button>
+  </div>
+
+  <div id="recordsArea">
+    <div class="skeleton skeleton-card"></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/waste.js') }}"></script>
+{% endblock %}

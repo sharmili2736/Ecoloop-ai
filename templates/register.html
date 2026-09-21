@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create your account — EcoLoop AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="auth-wrap">
+  <aside class="auth-aside">
+    <a class="sidebar-brand" href="/" style="padding:0"><span class="brand-mark">🌱</span> EcoLoop AI</a>
+    <div>
+      <h2>Measure first. Then reduce.</h2>
+      <p>Create an account and start logging waste, recycling and travel. Your dashboard
+        fills out from the first record.</p>
+      <div class="auth-points">
+        <div><i class="fa-solid fa-leaf"></i><span>A sustainability score across five pillars.</span></div>
+        <div><i class="fa-solid fa-chart-line"></i><span>Monthly trends for waste, recycling and carbon.</span></div>
+        <div><i class="fa-solid fa-trophy"></i><span>Challenges and badges to keep the habit going.</span></div>
+      </div>
+    </div>
+    <p class="small" style="opacity:.7;margin:0">Student Innovation · Open Clean Tech &amp; Sustainable Development</p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1>Create your account</h1>
+      <p class="sub">It takes under a minute. No credit card, no email confirmation.</p>
+
+      <form id="registerForm" novalidate>
+        <div class="field">
+          <label for="name">Full name</label>
+          <input type="text" id="name" name="name" autocomplete="name" required placeholder="Aarthi Raman">
+          <div class="field-error" id="nameError" role="alert"></div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required placeholder="you@college.edu">
+          <div class="field-error" id="emailError" role="alert"></div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="new-password" required
+                 placeholder="At least 6 characters">
+          <div class="field-hint">Stored as a Werkzeug hash — never in plain text.</div>
+          <div class="field-error" id="passwordError" role="alert"></div>
+        </div>
+
+        <div class="field">
+          <label for="organization">Organization or college</label>
+          <input type="text" id="organization" name="organization" autocomplete="organization"
+                 placeholder="Green Valley Institute of Technology">
+        </div>
+
+        <div class="field">
+          <label for="user_type">User type</label>
+          <select id="user_type" name="user_type">
+            {% for type in user_types %}
+              <option value="{{ type }}">{{ type }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="registerSubmit">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Create account
+        </button>
+      </form>
+
+      <p class="auth-alt">Already registered? <a href="{{ url_for('auth.login_page') }}">Sign in</a></p>
+      <p class="auth-alt"><a href="/">← Back to home</a></p>
+    </div>
+  </main>
+</div>
+
+<div class="toast-stack" role="status" aria-live="polite"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+(function () {
+  const form = Eco.$("#registerForm");
+  const submit = Eco.$("#registerSubmit");
+
+  function clearErrors() {
+    ["nameError", "emailError", "passwordError"].forEach((id) => {
+      Eco.$("#" + id).textContent = "";
+    });
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    clearErrors();
+
+    const payload = {
+      name: Eco.$("#name").value.trim(),
+      email: Eco.$("#email").value.trim(),
+      password: Eco.$("#password").value,
+      organization: Eco.$("#organization").value.trim(),
+      user_type: Eco.$("#user_type").value,
+    };
+
+    if (payload.name.length < 2) {
+      Eco.$("#nameError").textContent = "Enter your full name."; return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/.test(payload.email)) {
+      Eco.$("#emailError").textContent = "Enter a valid email address."; return;
+    }
+    if (payload.password.length < 6) {
+      Eco.$("#passwordError").textContent = "Use at least 6 characters."; return;
+    }
+
+    submit.disabled = true;
+    submit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account…';
+
+    const res = await Eco.api("/api/register", { method: "POST", body: payload });
+
+    if (res.success) {
+      Eco.toast(res.message, "success", "Account created");
+      setTimeout(() => (window.location.href = res.redirect), 600);
+    } else {
+      Eco.toast(res.error, "error", "Could not register");
+      if (/email/i.test(res.error)) Eco.$("#emailError").textContent = res.error;
+      submit.disabled = false;
+      submit.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create account';
+    }
+  });
+})();
+</script>
+</body>
+</html>

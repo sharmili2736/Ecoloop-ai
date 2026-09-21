@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="EcoLoop AI turns waste data into sustainable action: waste analysis, carbon accounting, recycling tracking, zero-waste planning and biodiversity records.">
+  <title>EcoLoop AI — Turn waste data into sustainable action</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<a class="skip-link" href="#hero">Skip to main content</a>
+
+<!-- ----------------------------------------------------------- nav -->
+<nav class="landing-nav">
+  <a class="brand" href="/"><span aria-hidden="true">🌱</span> EcoLoop AI</a>
+  <div class="links">
+    <a href="#why">Why EcoLoop</a>
+    <a href="#how">How it works</a>
+    <a href="#impact">Impact</a>
+  </div>
+  <div class="cta">
+    {% if signed_in %}
+      <a class="btn btn-primary" href="{{ url_for('dashboard.dashboard_page') }}">Open dashboard</a>
+    {% else %}
+      <a class="btn btn-ghost" href="{{ url_for('auth.login_page') }}">Sign in</a>
+      <a class="btn btn-primary" href="{{ url_for('auth.register_page') }}">Get started</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- ---------------------------------------------------------- hero -->
+<header class="hero" id="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="hero-eyebrow"><i class="fa-solid fa-circle-nodes" aria-hidden="true"></i>
+        Student innovation · Clean tech</span>
+      <h1>Turn Waste Data into Sustainable Action.</h1>
+      <p class="lede">EcoLoop AI helps communities understand waste, reduce carbon emissions,
+        increase recycling, protect biodiversity, and move towards a zero-waste future.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="{{ url_for('auth.register_page') }}">
+          Get started <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+        <a class="btn btn-secondary" href="{{ url_for('auth.login_page') }}">Explore dashboard</a>
+      </div>
+      <p class="hero-note">
+        Try it without signing up — demo login <code>{{ demo_email }}</code> / <code>{{ demo_password }}</code>
+      </p>
+    </div>
+
+    <!-- Animated SVG illustration: a closing material loop around a sapling -->
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 440 400" role="img" aria-label="Illustration of a circular waste loop around a growing plant">
+        <defs>
+          <linearGradient id="loopGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7fd3a6"/>
+            <stop offset="100%" stop-color="#1d7a4c"/>
+          </linearGradient>
+          <linearGradient id="soilGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#b99a72"/>
+            <stop offset="100%" stop-color="#6b5644"/>
+          </linearGradient>
+        </defs>
+
+        <circle class="pulse" cx="220" cy="200" r="165" fill="#2ea36a" opacity="0.12"/>
+        <circle class="pulse" cx="220" cy="200" r="122" fill="#2ea36a" opacity="0.14"
+                style="animation-delay:.8s"/>
+
+        <g class="orbit">
+          <circle cx="220" cy="200" r="150" fill="none" stroke="url(#loopGrad)"
+                  stroke-width="2.5" stroke-dasharray="16 12" opacity="0.7"/>
+          <circle cx="220" cy="50" r="13" fill="#2ea36a"/>
+          <circle cx="350" cy="275" r="9" fill="#e0a63c"/>
+          <circle cx="90" cy="275" r="9" fill="#2f80c4"/>
+        </g>
+        <g class="orbit-reverse">
+          <circle cx="220" cy="200" r="118" fill="none" stroke="#b99a72"
+                  stroke-width="2" stroke-dasharray="6 14" opacity="0.55"/>
+          <circle cx="338" cy="200" r="7" fill="#b99a72"/>
+        </g>
+
+        <!-- soil mound -->
+        <path d="M120 320 Q220 288 320 320 L320 344 Q220 360 120 344 Z" fill="url(#soilGrad)"/>
+
+        <!-- sapling -->
+        <g class="sway">
+          <path d="M220 320 L220 210" stroke="#1d7a4c" stroke-width="7" stroke-linecap="round"/>
+          <path d="M220 246 Q168 232 156 186 Q210 182 220 232 Z" fill="#2ea36a"/>
+          <path d="M220 222 Q272 206 286 160 Q230 158 220 210 Z" fill="#7fd3a6"/>
+          <path d="M220 272 Q176 266 166 232 Q210 230 220 262 Z" fill="#1d7a4c" opacity="0.85"/>
+        </g>
+
+        <!-- floating data chips -->
+        <g class="float-chip">
+          <rect x="36" y="96" width="112" height="42" rx="13" fill="#fff" opacity="0.96"/>
+          <circle cx="60" cy="117" r="10" fill="#e3f5ea"/>
+          <path d="M56 117 l3 4 6 -8" stroke="#1d7a4c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <text x="78" y="113" font-size="11" fill="#6b7d74" font-family="Inter, sans-serif">Recycled</text>
+          <text x="78" y="128" font-size="13" font-weight="700" fill="#16231d" font-family="Inter, sans-serif">128 kg</text>
+        </g>
+        <g class="float-chip delay">
+          <rect x="296" y="290" width="124" height="42" rx="13" fill="#fff" opacity="0.96"/>
+          <circle cx="320" cy="311" r="10" fill="#e4f0fa"/>
+          <path d="M316 314 l4 -6 4 4 4 -7" stroke="#2f80c4" stroke-width="2.2" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="338" y="307" font-size="11" fill="#6b7d74" font-family="Inter, sans-serif">CO₂ saved</text>
+          <text x="338" y="322" font-size="13" font-weight="700" fill="#16231d" font-family="Inter, sans-serif">96 kg</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- ----------------------------------------------------------- why -->
+<section class="section alt" id="why">
+  <div class="section-inner">
+    <div class="section-head" data-reveal>
+      <h2>Why EcoLoop AI?</h2>
+      <p>Most campuses and small offices already produce sustainability data. It sits in
+        notebooks, WhatsApp groups and spreadsheets, so nobody can act on it. EcoLoop
+        collects it in one place and turns it into next steps.</p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature" data-reveal>
+        <div class="ficon"><i class="fa-solid fa-camera" aria-hidden="true"></i></div>
+        <h3>Waste analysis</h3>
+        <p>Log waste by photo or category, get a material classification, and see how much
+          of it could have been diverted from landfill.</p>
+      </article>
+      <article class="feature" data-reveal>
+        <div class="ficon"><i class="fa-solid fa-smog" aria-hidden="true"></i></div>
+        <h3>Carbon accounting</h3>
+        <p>Estimate monthly emissions from electricity, travel, food and waste using
+          emission factors you can edit for your own region.</p>
+      </article>
+      <article class="feature" data-reveal>
+        <div class="ficon"><i class="fa-solid fa-recycle" aria-hidden="true"></i></div>
+        <h3>Smart recycling</h3>
+        <p>Track every handover by material and method, and watch your recycling rate
+          against goals you set yourself.</p>
+      </article>
+      <article class="feature" data-reveal>
+        <div class="ficon"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></div>
+        <h3>Zero-waste planning</h3>
+        <p>Turn intentions into measurable goals with deadlines, progress and a status
+          that updates itself.</p>
+      </article>
+      <article class="feature" data-reveal>
+        <div class="ficon"><i class="fa-solid fa-dove" aria-hidden="true"></i></div>
+        <h3>Biodiversity tracking</h3>
+        <p>Record the birds, trees and insects around you to build a local baseline that
+          shows change over time.</p>
+      </article>
+      <article class="feature" data-reveal>
+        <div class="ficon"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></div>
+        <h3>Sustainability reports</h3>
+        <p>Generate a monthly report with waste, carbon, recycling and biodiversity
+          figures, ready to print or download.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ----------------------------------------------------------- how -->
+<section class="section" id="how">
+  <div class="section-inner">
+    <div class="section-head" data-reveal>
+      <h2>How it works</h2>
+      <p>Four steps, repeated as often as you like. The more you log, the sharper the
+        recommendations become.</p>
+    </div>
+
+    <div class="steps">
+      <article class="step" data-reveal>
+        <div class="step-num">1</div>
+        <h3>Enter or upload data</h3>
+        <p>Photograph a waste item or type in a quantity. Add recycling handovers,
+          observations and a monthly carbon assessment.</p>
+      </article>
+      <article class="step" data-reveal>
+        <div class="step-num">2</div>
+        <h3>EcoLoop analyses it</h3>
+        <p>The classifier labels the material and the carbon engine converts your inputs
+          into estimated emissions.</p>
+      </article>
+      <article class="step" data-reveal>
+        <div class="step-num">3</div>
+        <h3>Get recommendations</h3>
+        <p>Rules run over your own numbers and return prioritised actions with an
+          estimated benefit for each one.</p>
+      </article>
+      <article class="step" data-reveal>
+        <div class="step-num">4</div>
+        <h3>Track your impact</h3>
+        <p>Watch your sustainability score, recycling rate and footprint move month by
+          month, and export a report.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- -------------------------------------------------------- impact -->
+<section class="impact-band" id="impact">
+  <div class="impact-grid">
+    <div>
+      <div class="num" data-count-scroll="18450" data-decimals="0" data-suffix=" kg">0 kg</div>
+      <div class="lbl">Waste analysed</div>
+    </div>
+    <div>
+      <div class="num" data-count-scroll="7320" data-decimals="0" data-suffix=" kg">0 kg</div>
+      <div class="lbl">Plastic recycled</div>
+    </div>
+    <div>
+      <div class="num" data-count-scroll="12640" data-decimals="0" data-suffix=" kg">0 kg</div>
+      <div class="lbl">CO₂ reduced</div>
+    </div>
+    <div>
+      <div class="num" data-count-scroll="4870" data-decimals="0">0</div>
+      <div class="lbl">Eco actions completed</div>
+    </div>
+  </div>
+  <p class="small" style="text-align:center;margin:26px auto 0;max-width:56ch;color:rgba(233,247,239,.6)">
+    Figures shown here are illustrative programme targets. Everything inside your dashboard
+    is calculated from the records you enter.
+  </p>
+</section>
+
+<!-- ----------------------------------------------------------- cta -->
+<section class="section alt">
+  <div class="section-inner" style="text-align:center;max-width:680px" data-reveal>
+    <h2>Start with one week of data</h2>
+    <p class="muted">Log what you throw away for seven days. EcoLoop will show you where your
+      biggest reduction is hiding, and what it is worth in kilograms of CO₂e.</p>
+    <div class="hero-cta" style="justify-content:center">
+      <a class="btn btn-primary" href="{{ url_for('auth.register_page') }}">Create an account</a>
+      <a class="btn btn-secondary" href="{{ url_for('auth.login_page') }}">Use the demo account</a>
+    </div>
+  </div>
+</section>
+
+<footer class="landing-foot">
+  <span>🌱 EcoLoop AI — Intelligent Circular Waste &amp; Carbon Management System</span>
+  <span>Built with Flask, SQLite and Chart.js. Carbon figures are estimates.</span>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Eco Challenges — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Eco challenges</h1>
+    <p>Short, specific commitments that turn one-off effort into a habit. Completing one
+      adds its reward points to your eco score.</p>
+  </div>
+  <div class="page-actions">
+    <span class="points-pill"><i class="fa-solid fa-seedling"></i>
+      <span id="pointsPanel">{{ '{:,}'.format(user.eco_points) }}</span> eco points</span>
+  </div>
+</div>
+
+<section class="grid grid-4" style="margin-bottom:18px">
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-flag" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Challenges joined</div>
+      <div class="stat-value"><span id="sumJoined" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Completed</div>
+      <div class="stat-value"><span id="sumCompleted" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon amber"><i class="fa-solid fa-star" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Points from challenges</div>
+      <div class="stat-value"><span id="sumPoints" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon earth"><i class="fa-solid fa-medal" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Badges earned</div>
+      <div class="stat-value"><span id="sumBadges" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+</section>
+
+<section style="margin-bottom:18px">
+  <div class="card-head"><h3>Available challenges</h3></div>
+  <div id="challengeGrid" class="grid grid-3">
+    <div class="card skeleton skeleton-card"></div>
+    <div class="card skeleton skeleton-card"></div>
+    <div class="card skeleton skeleton-card"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h3>Achievement badges</h3>
+    <span class="muted small">Earned automatically from your activity</span>
+  </div>
+  <div id="badgeGrid" class="badge-grid"><div class="skeleton skeleton-card"></div></div>
+</section>
+
+<!-- progress modal -->
+<div class="modal-backdrop" id="progressModal" role="dialog" aria-modal="true"
+     aria-labelledby="progressTitle" aria-hidden="true">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <div>
+        <h3 id="progressTitle">Update your progress</h3>
+        <p id="progressName" class="muted"></p>
+      </div>
+      <button class="icon-btn" data-close-modal="progressModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="progressForm">
+      <input type="hidden" id="progressChallengeId">
+      <div class="field">
+        <label for="progressRange">Progress: <span id="progressLabel">0</span>%</label>
+        <input type="range" id="progressRange" min="0" max="100" step="5" value="0" style="width:100%">
+      </div>
+      <p class="small muted">Reaching 100% marks the challenge complete and awards its points.</p>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" data-close-modal="progressModal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save progress</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/challenges.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ code }} — EcoLoop AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<main class="error-page">
+  <div>
+    <div class="code">{{ code }}</div>
+    <h1 style="margin-top:10px">{{ message }}</h1>
+    <p class="muted" style="max-width:44ch;margin:0 auto 22px">
+      Check the address, or head back to a page you know works.
+    </p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-secondary" href="/">Back to home</a>
+      <a class="btn btn-primary" href="/dashboard">Open dashboard</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

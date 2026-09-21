@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Sustainability Reports — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Sustainability reports</h1>
+    <p>Generate a monthly summary of waste, recycling, carbon, challenges and biodiversity.
+      Print it, or download it as a PDF.</p>
+  </div>
+  <div class="page-actions">
+    <select id="monthSelect" aria-label="Report month" style="width:auto">
+      {% for m in range(1, 13) %}
+        <option value="{{ m }}" {{ 'selected' if m == current_month }}>
+          {{ ['January','February','March','April','May','June','July','August','September','October','November','December'][m-1] }}
+        </option>
+      {% endfor %}
+    </select>
+    <select id="yearSelect" aria-label="Report year" style="width:auto">
+      {% for y in years %}<option value="{{ y }}" {{ 'selected' if y == current_year }}>{{ y }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-primary" id="generateBtn">
+      <i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i> Generate report
+    </button>
+  </div>
+</div>
+
+<div id="reportArea">
+  <div class="card">
+    <div class="skeleton skeleton-line" style="width:40%"></div>
+    <div class="skeleton skeleton-card"></div>
+  </div>
+</div>
+
+<div class="page-actions no-print" style="margin-top:18px" id="exportActions" hidden>
+  <a class="btn btn-secondary" id="printLink" target="_blank" rel="noopener">
+    <i class="fa-solid fa-print" aria-hidden="true"></i> Print-friendly view
+  </a>
+  <a class="btn btn-primary" id="downloadLink">
+    <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Download PDF
+  </a>
+</div>
+
+{% if not pdf_available %}
+<p class="small muted" style="margin-top:12px">
+  PDF export needs ReportLab. Install it with <code>pip install reportlab</code>, or use the
+  print-friendly view and save as PDF from your browser.
+</p>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

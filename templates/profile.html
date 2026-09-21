@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Profile &amp; Settings — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Profile &amp; settings</h1>
+    <p>Your account details, your score, and the preferences that control how EcoLoop looks
+      and notifies you.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="{{ url_for('auth.logout_page') }}" id="logoutBtn2">
+      <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out
+    </a>
+  </div>
+</div>
+
+<section class="card card-glass" style="margin-bottom:18px">
+  <div class="profile-head">
+    <div class="profile-avatar">{{ user.name[:1].upper() }}</div>
+    <div style="flex:1;min-width:220px">
+      <h2 style="margin:0 0 3px">{{ user.name }}</h2>
+      <p class="muted" style="margin:0">{{ user.email }}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <span class="chip"><i class="fa-solid fa-building-columns"></i> {{ user.organization or 'No organization' }}</span>
+        <span class="chip"><i class="fa-solid fa-user-tag"></i> {{ user.user_type }}</span>
+        <span class="chip"><i class="fa-regular fa-calendar"></i> Joined {{ user.created_at[:10] }}</span>
+      </div>
+    </div>
+    <div class="kv" style="flex:1;min-width:260px">
+      <div><div class="k">Eco points</div><div class="v">{{ '{:,}'.format(user.eco_points) }}</div></div>
+      <div><div class="k">Sustainability score</div><div class="v">{{ score.score }} / 100</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="grid grid-2" style="margin-bottom:18px">
+  <article class="card">
+    <div class="card-head"><h3>Update your profile</h3></div>
+    <form id="profileForm" novalidate>
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" value="{{ user.name }}" required>
+        <div class="field-error" id="nameError" role="alert"></div>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" value="{{ user.email }}" disabled>
+        <div class="field-hint">Email is used to sign in and cannot be changed here.</div>
+      </div>
+      <div class="field">
+        <label for="organization">Organization or college</label>
+        <input type="text" id="organization" value="{{ user.organization or '' }}">
+      </div>
+      <div class="field">
+        <label for="userType">User type</label>
+        <select id="userType">
+          {% for type in user_types %}
+            <option value="{{ type }}" {{ 'selected' if type == user.user_type }}>{{ type }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="saveProfile">
+        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save changes
+      </button>
+    </form>
+  </article>
+
+  <div class="stack">
+    <article class="card">
+      <div class="card-head"><h3>Change password</h3></div>
+      <form id="passwordForm" novalidate>
+        <div class="field">
+          <label for="currentPassword">Current password</label>
+          <input type="password" id="currentPassword" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="newPassword">New password</label>
+          <input type="password" id="newPassword" autocomplete="new-password" required>
+          <div class="field-hint">At least 6 characters.</div>
+          <div class="field-error" id="passwordError" role="alert"></div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="savePassword">
+          <i class="fa-solid fa-key" aria-hidden="true"></i> Change password
+        </button>
+      </form>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h3>Preferences</h3></div>
+      <div class="field">
+        <label for="themeSelect">Theme</label>
+        <select id="themeSelect">
+          <option value="light" {{ 'selected' if user.theme == 'light' }}>Light</option>
+          <option value="dark" {{ 'selected' if user.theme == 'dark' }}>Dark</option>
+        </select>
+        <div class="field-hint">Applies immediately and is saved to your account.</div>
+      </div>
+      <div class="switch field">
+        <input type="checkbox" id="notifications" {{ 'checked' if user.notifications }}>
+        <label for="notifications" style="margin:0">Show in-app notifications and reminders</label>
+      </div>
+      <button class="btn btn-secondary" id="savePrefs">Save preferences</button>
+    </article>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h3>Score breakdown</h3>
+    <span class="muted small">Five pillars, equally weighted</span>
+  </div>
+  <div class="grid grid-2">
+    <div>
+      {% for name, value in score.pillars.items() %}
+        <div class="pillar">
+          <div class="pillar-top"><span>{{ name }}</span><span>{{ value }} / 100</span></div>
+          <div class="bar"><span data-fill="{{ value }}"></span></div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="badge-grid">
+      {% for badge in badges %}
+        <div class="badge-card {{ 'earned' if badge.earned }}">
+          <div class="ring"><i class="fa-solid fa-{{ badge.icon }}"></i></div>
+          <h4>{{ badge.name }}</h4>
+          <p>{{ badge.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

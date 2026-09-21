@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 id="greetingLine">{{ greeting }}, {{ user.name.split(' ')[0] }} 🌱</h1>
+    <p>Here is how your sustainability data looks right now. Everything below is
+      calculated from the records you have logged.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-secondary" href="{{ url_for('waste.waste_page') }}">
+      <i class="fa-solid fa-camera" aria-hidden="true"></i> Analyse waste
+    </a>
+    <a class="btn btn-primary" href="{{ url_for('recycling.recycling_page') }}">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i> Log recycling
+    </a>
+  </div>
+</div>
+
+<!-- Row 1 — headline statistics -->
+<section class="grid grid-4" aria-label="Sustainability overview" style="margin-bottom:18px">
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></div>
+    <div>
+      <div class="stat-label">Total waste generated</div>
+      <div class="stat-value"><span id="statWaste" data-count="0" data-decimals="1">0</span><span class="unit">kg</span></div>
+    </div>
+    <div class="stat-delta flat" id="deltaWaste">—</div>
+  </article>
+
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-recycle" aria-hidden="true"></i></div>
+    <div>
+      <div class="stat-label">Waste recycled</div>
+      <div class="stat-value"><span id="statRecycled" data-count="0" data-decimals="1">0</span><span class="unit">kg</span></div>
+    </div>
+    <div class="stat-delta flat" id="deltaRecycled">—</div>
+  </article>
+
+  <article class="card stat-card">
+    <div class="stat-icon blue"><i class="fa-solid fa-bottle-water" aria-hidden="true"></i></div>
+    <div>
+      <div class="stat-label">Plastic recycled</div>
+      <div class="stat-value"><span id="statPlastic" data-count="0" data-decimals="1">0</span><span class="unit">kg</span></div>
+    </div>
+    <div class="stat-delta flat" id="deltaPlastic">Diverted from landfill</div>
+  </article>
+
+  <article class="card stat-card">
+    <div class="stat-icon amber"><i class="fa-solid fa-leaf" aria-hidden="true"></i></div>
+    <div>
+      <div class="stat-label">Estimated CO₂ saved</div>
+      <div class="stat-value"><span id="statCo2" data-count="0" data-decimals="1">0</span><span class="unit">kg</span></div>
+    </div>
+    <div class="stat-delta flat">Through recycling</div>
+  </article>
+</section>
+
+<!-- Row 2 — score + insight -->
+<section class="grid grid-score" style="margin-bottom:18px">
+  <article class="card card-glass">
+    <div class="card-head">
+      <h3>Sustainability score</h3>
+      <span class="muted small">Five pillars</span>
+    </div>
+    <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center">
+      <div class="score-ring">
+        <svg width="176" height="176" viewBox="0 0 176 176" role="img" aria-labelledby="scoreLabel">
+          <title id="scoreLabel">Sustainability score out of 100</title>
+          <defs>
+            <linearGradient id="scoreGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#7fd3a6"/>
+              <stop offset="100%" stop-color="#1d7a4c"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-track" cx="88" cy="88" r="70"/>
+          <circle class="ring-value" id="scoreRing" cx="88" cy="88" r="70"/>
+        </svg>
+        <div class="score-center">
+          <div class="num" id="scoreValue" data-count="0" data-decimals="0">0</div>
+          <div class="den">out of 100</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:210px" id="pillarList">
+        <div class="skeleton skeleton-line" style="width:82%"></div>
+        <div class="skeleton skeleton-line" style="width:68%"></div>
+        <div class="skeleton skeleton-line" style="width:76%"></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="stack">
+    <article class="card insight">
+      <span class="tag"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Insight</span>
+      <h3>What your data is saying</h3>
+      <p id="insightText">Reading your records…</p>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <h3>Top recommendations</h3>
+        <a href="#recommendations" class="small">See all</a>
+      </div>
+      <div id="topRecs">
+        <div class="skeleton skeleton-card"></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- Row 3 — charts -->
+<section class="grid grid-2" style="margin-bottom:18px">
+  <article class="card">
+    <div class="card-head">
+      <h3>Monthly waste generation</h3>
+      <span class="muted small">Last 6 months · kg</span>
+    </div>
+    <div class="chart-box"><canvas id="wasteChart" aria-label="Monthly waste generation chart"></canvas></div>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <h3>Recycling rate</h3>
+      <span class="muted small">Recycled ÷ generated</span>
+    </div>
+    <div class="chart-box"><canvas id="rateChart" aria-label="Recycling rate chart"></canvas></div>
+  </article>
+</section>
+
+<section class="grid grid-2" style="margin-bottom:18px">
+  <article class="card">
+    <div class="card-head">
+      <h3>Carbon footprint trend</h3>
+      <span class="muted small">Estimated kg CO₂e per month</span>
+    </div>
+    <div class="chart-box"><canvas id="carbonChart" aria-label="Carbon footprint trend chart"></canvas></div>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <h3>Waste category distribution</h3>
+      <span class="muted small">Share of logged waste</span>
+    </div>
+    <div class="chart-box"><canvas id="categoryChart" aria-label="Waste category distribution chart"></canvas></div>
+  </article>
+</section>
+
+<!-- Row 4 — recycling progress + goals -->
+<section class="grid grid-aside" style="margin-bottom:18px">
+  <article class="card">
+    <div class="card-head">
+      <h3>Recycling by material</h3>
+      <a class="small" href="{{ url_for('recycling.recycling_page') }}">Open tracker</a>
+    </div>
+    <div class="chart-box short"><canvas id="materialChart" aria-label="Recycling by material chart"></canvas></div>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <h3>Active goals</h3>
+      <a class="small" href="{{ url_for('goals.zero_waste_page') }}">Plan</a>
+    </div>
+    <div id="goalList"><div class="skeleton skeleton-card"></div></div>
+  </article>
+</section>
+
+<!-- Row 5 — challenges + biodiversity -->
+<section class="grid grid-aside" style="margin-bottom:18px">
+  <article class="card">
+    <div class="card-head">
+      <h3>Eco challenges</h3>
+      <a class="small" href="{{ url_for('challenges.challenges_page') }}">All challenges</a>
+    </div>
+    <div id="challengeList"><div class="skeleton skeleton-card"></div></div>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <h3>Biodiversity</h3>
+      <a class="small" href="{{ url_for('biodiversity.biodiversity_page') }}">Open monitor</a>
+    </div>
+    <div id="bioSummary"><div class="skeleton skeleton-card"></div></div>
+  </article>
+</section>
+
+<!-- Recommendations -->
+<section class="card" id="recommendations">
+  <div class="card-head">
+    <h3>Smart eco recommendations</h3>
+    <span class="muted small">Generated from your own records</span>
+  </div>
+  <div id="recList"><div class="skeleton skeleton-card"></div></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

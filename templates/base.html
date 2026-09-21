@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ user.theme if user else 'light' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="EcoLoop AI — track waste, carbon, recycling and biodiversity in one sustainability dashboard.">
+  <title>{% block title %}EcoLoop AI{% endblock %}</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<a class="skip-link" href="#mainContent">Skip to main content</a>
+
+<div class="app-shell">
+  <!-- ------------------------------------------------------- sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a class="sidebar-brand" href="{{ url_for('dashboard.dashboard_page') }}">
+      <span class="brand-mark" aria-hidden="true">🌱</span>
+      EcoLoop AI
+    </a>
+
+    <nav>
+      <span class="sidebar-label">Overview</span>
+      <a class="nav-link {{ 'active' if active_page == 'dashboard' }}" href="{{ url_for('dashboard.dashboard_page') }}">
+        <i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Dashboard
+      </a>
+
+      <span class="sidebar-label">Measure</span>
+      <a class="nav-link {{ 'active' if active_page == 'waste' }}" href="{{ url_for('waste.waste_page') }}">
+        <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Waste Analyzer
+      </a>
+      <a class="nav-link {{ 'active' if active_page == 'carbon' }}" href="{{ url_for('carbon.carbon_page') }}">
+        <i class="fa-solid fa-smog" aria-hidden="true"></i> Carbon Footprint
+      </a>
+      <a class="nav-link {{ 'active' if active_page == 'recycling' }}" href="{{ url_for('recycling.recycling_page') }}">
+        <i class="fa-solid fa-recycle" aria-hidden="true"></i> Recycling
+      </a>
+
+      <span class="sidebar-label">Act</span>
+      <a class="nav-link {{ 'active' if active_page == 'zero-waste' }}" href="{{ url_for('goals.zero_waste_page') }}">
+        <i class="fa-solid fa-bullseye" aria-hidden="true"></i> Zero-Waste Planner
+      </a>
+      <a class="nav-link {{ 'active' if active_page == 'biodiversity' }}" href="{{ url_for('biodiversity.biodiversity_page') }}">
+        <i class="fa-solid fa-dove" aria-hidden="true"></i> Biodiversity
+      </a>
+      <a class="nav-link {{ 'active' if active_page == 'challenges' }}" href="{{ url_for('challenges.challenges_page') }}">
+        <i class="fa-solid fa-trophy" aria-hidden="true"></i> Eco Challenges
+      </a>
+      <a class="nav-link {{ 'active' if active_page == 'reports' }}" href="{{ url_for('reports.reports_page') }}">
+        <i class="fa-solid fa-file-lines" aria-hidden="true"></i> Reports
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="nav-link {{ 'active' if active_page == 'profile' }}" href="{{ url_for('auth.profile_page') }}">
+        <i class="fa-solid fa-gear" aria-hidden="true"></i> Profile &amp; Settings
+      </a>
+      <a class="nav-link" href="{{ url_for('auth.logout_page') }}" id="logoutBtn">
+        <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- ---------------------------------------------------------- main -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="sidebarToggle" aria-label="Open navigation" aria-expanded="false"
+              style="display:none">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+
+      <div class="topbar-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <label class="sr-only" for="globalSearch">Search EcoLoop</label>
+        <input type="search" id="globalSearch" placeholder="Search modules — try “recycling”">
+      </div>
+
+      <div class="topbar-actions">
+        <span class="points-pill" title="Your eco points">
+          <i class="fa-solid fa-seedling" aria-hidden="true"></i>
+          <span id="ecoPointsTop">{{ '{:,}'.format(user.eco_points) if user else 0 }}</span>
+        </span>
+
+        <div class="notif-wrap">
+          <button class="icon-btn" data-dropdown="notifMenu" aria-label="Notifications" aria-expanded="false">
+            <i class="fa-regular fa-bell" aria-hidden="true"></i>
+            <span class="notif-dot"></span>
+          </button>
+          <div class="dropdown" id="notifMenu" role="menu">
+            <a class="dropdown-item" href="{{ url_for('challenges.challenges_page') }}" role="menuitem">
+              <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+              <span>Two challenges are waiting for your progress update.</span>
+            </a>
+            <a class="dropdown-item" href="{{ url_for('goals.zero_waste_page') }}" role="menuitem">
+              <i class="fa-solid fa-bullseye" aria-hidden="true"></i>
+              <span>A zero-waste goal is close to its deadline.</span>
+            </a>
+            <a class="dropdown-item" href="{{ url_for('reports.reports_page') }}" role="menuitem">
+              <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+              <span>Your monthly report is ready to generate.</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="notif-wrap">
+          <button class="avatar" data-dropdown="profileMenu" aria-label="Account menu" aria-expanded="false">
+            {{ user.name[:1].upper() if user else 'U' }}
+          </button>
+          <div class="dropdown" id="profileMenu" role="menu">
+            <div style="padding:10px 12px 8px">
+              <strong>{{ user.name if user else 'Guest' }}</strong>
+              <div class="small muted">{{ user.email if user else '' }}</div>
+            </div>
+            <a class="dropdown-item" href="{{ url_for('auth.profile_page') }}" role="menuitem">
+              <i class="fa-solid fa-user" aria-hidden="true"></i><span>Profile &amp; settings</span>
+            </a>
+            <a class="dropdown-item" href="{{ url_for('reports.reports_page') }}" role="menuitem">
+              <i class="fa-solid fa-file-lines" aria-hidden="true"></i><span>Sustainability reports</span>
+            </a>
+            <a class="dropdown-item" href="{{ url_for('auth.logout_page') }}" role="menuitem">
+              <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Log out</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="mainContent">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<!-- shared confirmation dialog -->
+<div class="modal-backdrop" id="confirmModal" role="dialog" aria-modal="true"
+     aria-labelledby="confirmTitle" aria-hidden="true">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <div>
+        <h3 id="confirmTitle">Are you sure?</h3>
+        <p id="confirmMessage"></p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+      <button class="btn btn-primary" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  // The hamburger button is only useful on narrow viewports.
+  (function () {
+    const toggle = document.getElementById("sidebarToggle");
+    const sync = () => { toggle.style.display = window.innerWidth <= 860 ? "grid" : "none"; };
+    sync();
+    window.addEventListener("resize", sync);
+  })();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

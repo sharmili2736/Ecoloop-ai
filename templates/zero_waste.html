@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Zero-Waste Planner — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Zero-waste planner</h1>
+    <p>Turn intentions into measurable goals. Status updates itself from your progress and
+      the deadline you set.</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-primary" id="createGoalBtn">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i> Create goal
+    </button>
+  </div>
+</div>
+
+<section class="grid grid-4" style="margin-bottom:18px">
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Goals tracked</div>
+      <div class="stat-value"><span id="sumTotal" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon blue"><i class="fa-solid fa-spinner" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Active</div>
+      <div class="stat-value"><span id="sumActive" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Completed</div>
+      <div class="stat-value"><span id="sumDone" data-count="0" data-decimals="0">0</span></div></div>
+  </article>
+  <article class="card stat-card">
+    <div class="stat-icon amber"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></div>
+    <div><div class="stat-label">Average progress</div>
+      <div class="stat-value"><span id="sumProgress" data-count="0" data-decimals="0">0</span><span class="unit">%</span></div></div>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h3>Your goals</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-secondary filter-btn" data-status="">All</button>
+      <button class="btn btn-sm btn-ghost filter-btn" data-status="Active">Active</button>
+      <button class="btn btn-sm btn-ghost filter-btn" data-status="Completed">Completed</button>
+      <button class="btn btn-sm btn-ghost filter-btn" data-status="Overdue">Overdue</button>
+    </div>
+  </div>
+  <div id="goalsArea"><div class="skeleton skeleton-card"></div></div>
+</section>
+
+<!-- goal modal (create + edit) -->
+<div class="modal-backdrop" id="goalModal" role="dialog" aria-modal="true"
+     aria-labelledby="goalModalTitle" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="goalModalTitle">Create a goal</h3>
+        <p>Give it a number and a deadline so progress can be measured.</p>
+      </div>
+      <button class="icon-btn" data-close-modal="goalModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <form id="goalForm" novalidate>
+      <input type="hidden" id="goalId">
+      <div class="field">
+        <label for="goalTitle">Goal name</label>
+        <input type="text" id="goalTitle" required placeholder="Reduce plastic waste by 20%">
+        <div class="field-error" id="titleError" role="alert"></div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="goalTarget">Target</label>
+          <input type="number" id="goalTarget" min="0.01" step="0.01" required placeholder="20">
+          <div class="field-error" id="targetError" role="alert"></div>
+        </div>
+        <div class="field">
+          <label for="goalUnit">Unit</label>
+          <select id="goalUnit">
+            {% for unit in units %}<option value="{{ unit }}">{{ unit }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="goalCurrent">Current progress</label>
+          <input type="number" id="goalCurrent" min="0" step="0.01" value="0">
+        </div>
+        <div class="field">
+          <label for="goalDeadline">Deadline</label>
+          <input type="date" id="goalDeadline">
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" data-close-modal="goalModal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveGoal">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save goal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- progress modal -->
+<div class="modal-backdrop" id="progressModal" role="dialog" aria-modal="true"
+     aria-labelledby="progressModalTitle" aria-hidden="true">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <div>
+        <h3 id="progressModalTitle">Update progress</h3>
+        <p id="progressGoalName" class="muted"></p>
+      </div>
+      <button class="icon-btn" data-close-modal="progressModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="progressForm">
+      <input type="hidden" id="progressGoalId">
+      <div class="field">
+        <label for="progressValue">Current value</label>
+        <input type="number" id="progressValue" min="0" step="0.01" required>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" data-close-modal="progressModal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save progress</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/zero_waste.js') }}"></script>
+{% endblock %}

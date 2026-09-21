@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Carbon Footprint — EcoLoop AI{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Carbon footprint calculator</h1>
+    <p>Estimate a month of emissions from electricity, travel, food and waste. Figures are
+      estimates based on configurable emission factors.</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-secondary" data-open-modal="factorsModal">
+      <i class="fa-solid fa-sliders" aria-hidden="true"></i> View emission factors
+    </button>
+  </div>
+</div>
+
+<section class="analyzer-grid" style="margin-bottom:18px">
+  <!-- inputs -->
+  <article class="card">
+    <div class="card-head"><h3>Your month</h3></div>
+    <form id="carbonForm" novalidate>
+      <h4 style="margin-top:4px"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Electricity</h4>
+      <div class="field">
+        <label for="electricity">Monthly electricity used (kWh)</label>
+        <input type="number" id="electricity" min="0" step="1" value="180">
+      </div>
+
+      <h4><i class="fa-solid fa-car" aria-hidden="true"></i> Transportation</h4>
+      <div class="field-row">
+        <div class="field">
+          <label for="transportType">Vehicle type</label>
+          <select id="transportType">
+            {% for vehicle in vehicles %}
+              <option value="{{ vehicle.value }}">{{ vehicle.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="distance">Distance per month (km)</label>
+          <input type="number" id="distance" min="0" step="1" value="300">
+        </div>
+      </div>
+
+      <h4><i class="fa-solid fa-utensils" aria-hidden="true"></i> Food</h4>
+      <div class="field-row">
+        <div class="field">
+          <label for="vegMeals">Vegetarian meals per week</label>
+          <input type="number" id="vegMeals" min="0" max="50" step="1" value="14">
+        </div>
+        <div class="field">
+          <label for="nonvegMeals">Non-vegetarian meals per week</label>
+          <input type="number" id="nonvegMeals" min="0" max="50" step="1" value="7">
+        </div>
+      </div>
+
+      <h4><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Waste sent to landfill</h4>
+      <div class="field-row">
+        <div class="field">
+          <label for="plasticWaste">Plastic (kg)</label>
+          <input type="number" id="plasticWaste" min="0" step="0.1" value="2">
+        </div>
+        <div class="field">
+          <label for="organicWaste">Organic (kg)</label>
+          <input type="number" id="organicWaste" min="0" step="0.1" value="6">
+        </div>
+      </div>
+      <div class="field">
+        <label for="paperWaste">Paper (kg)</label>
+        <input type="number" id="paperWaste" min="0" step="0.1" value="3">
+      </div>
+
+      <div class="switch field">
+        <input type="checkbox" id="saveAssessment" checked>
+        <label for="saveAssessment" style="margin:0">Save this assessment (+20 eco points)</label>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="submit" class="btn btn-primary" id="calcBtn">
+          <i class="fa-solid fa-calculator" aria-hidden="true"></i> Calculate footprint
+        </button>
+        <button type="reset" class="btn btn-secondary">Reset</button>
+      </div>
+    </form>
+  </article>
+
+  <!-- result -->
+  <div class="stack">
+    <article class="card card-glass">
+      <div class="card-head">
+        <h3>Estimated footprint</h3>
+        <span class="muted small" id="changeChip"></span>
+      </div>
+      <div style="text-align:center;padding:6px 0 14px">
+        <div class="stat-value" style="font-size:2.9rem">
+          <span id="monthlyTotal" data-count="0" data-decimals="1">0</span>
+          <span class="unit">kg CO₂e / month</span>
+        </div>
+        <p class="muted small" style="margin:6px 0 0">
+          Around <span id="annualTotal">0</span> kg CO₂e a year ·
+          <span id="perDay">0</span> kg a day ·
+          offsetting needs about <span id="trees">0</span> trees for a year
+        </p>
+      </div>
+      <div class="chart-box short"><canvas id="breakdownChart" aria-label="Emissions by source"></canvas></div>
+      <p class="small muted" style="margin:12px 0 0">Estimated carbon footprint based on
+        configurable emission factors.</p>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h3>Where it comes from</h3></div>
+      <div id="breakdownList">
+        <p class="muted">Run a calculation to see your category-wise split.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="grid grid-2">
+  <article class="card">
+    <div class="card-head">
+      <h3>Footprint history</h3>
+      <span class="muted small">Your saved assessments</span>
+    </div>
+    <div class="chart-box"><canvas id="historyChart" aria-label="Footprint history chart"></canvas></div>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h3>Past assessments</h3></div>
+    <div id="historyList"><div class="skeleton skeleton-card"></div></div>
+  </article>
+</section>
+
+<!-- emission factors modal -->
+<div class="modal-backdrop" id="factorsModal" role="dialog" aria-modal="true"
+     aria-labelledby="factorsTitle" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="factorsTitle">Emission factors in use</h3>
+        <p>Edit these in <code>config.py</code> to match your region.</p>
+      </div>
+      <button class="icon-btn" data-close-modal="factorsModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Source</th><th>Factor</th></tr></thead>
+        <tbody>
+          <tr><td>Electricity</td><td>{{ factors.electricity_kwh }} kg CO₂e per kWh</td></tr>
+          {% for label, value in factors.vehicles.items() %}
+            <tr><td>{{ label }}</td><td>{{ value }} kg CO₂e per km</td></tr>
+          {% endfor %}
+          <tr><td>Vegetarian meal</td><td>{{ factors.meal_vegetarian }} kg CO₂e per meal</td></tr>
+          <tr><td>Non-vegetarian meal</td><td>{{ factors.meal_non_vegetarian }} kg CO₂e per meal</td></tr>
+          {% for material, value in factors.waste.items() %}
+            <tr><td>{{ material|capitalize }} to landfill</td><td>{{ value }} kg CO₂e per kg</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-close-modal="factorsModal">Close</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/carbon.js') }}"></script>
+{% endblock %}
